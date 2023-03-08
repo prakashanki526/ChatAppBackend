@@ -1,114 +1,27 @@
 const { Router } = require("express");
-const route = Router();
+const router = Router();
 const User = require('../models/User.js');
+const jwt = require("jsonwebtoken");
+const Auth = require("../middleware/auth.js");
+const {register, login, getUser, updateUser, generateOTP, verifyOTP, createResetSession, resetPassword, verifyUser} = require('../controllers/appController.js');
 
 
 // post methods
-
-route.post("/register",async(req,res,next)=>{
-    try {
-        const {name, email, password} = req.body;
-
-        const foundUser = await User.findOne({email: email});
-        if(!foundUser){
-            await User.create({name,email,password});
-            res.status(201).send({msg: "Registered successfully"});
-        } else {
-            res.status(500).send({msg: "User already exist."});
-        }
-
-    } catch (error) {
-        console.log(error);
-        next(error);
-    }
-})
-
-route.post("/registerMail",async(req,res,next)=>{
-    try {
-        
-    } catch (error) {
-        console.log(err);
-        next(error);
-    }
-})
-
-route.post("/authenticate",async(req,res,next)=>{
-    try {
-        
-    } catch (error) {
-        console.log(err);
-        next(error);
-    }
-})
-
-route.post("/login",async(req,res,next)=>{
-    try {
-        
-    } catch (error) {
-        console.log(err);
-        next(error);
-    }
-})
-
+router.route('/register').post(register);
+// router.route('/registerMail').post();
+router.route('/authenticate').post((req,res)=>res.end());
+router.route('/login').post(verifyUser,login);
 
 // get methods
-
-route.get("/user/:username",async(req,res,next)=>{
-    try {
-        
-    } catch (error) {
-        console.log(error);
-        next(error)
-    }
-})
-
-route.get("/generateOTP",async(req,res,next)=>{
-    try {
-        
-    } catch (error) {
-        console.log(error);
-        next(error)
-    }
-})
-
-route.get("/verifyOTP",async(req,res,next)=>{
-    try {
-        
-    } catch (error) {
-        console.log(error);
-        next(error)
-    }
-})
-
-route.get("/createResetSession",async(req,res,next)=>{
-    try {
-        
-    } catch (error) {
-        console.log(error);
-        next(error)
-    }
-})
-
+router.route('/user/:email').get(getUser);
+router.route('/generateOTP').get(generateOTP);
+router.route('/verifyOTP').get(verifyOTP);
+router.route('/createResetSession').get(createResetSession);
 
 // put methods
+router.route('/updateUser').put(updateUser);
+router.route('/resetPassword').put(resetPassword);
 
-route.put("/updateUser",async(req,res,next)=>{
-    try {
-        
-    } catch (error) {
-        console.log(error);
-        next(error);
-    }
-})
 
-route.put("/resetPassword",async(req,res,next)=>{
-    try {
-        
-    } catch (error) {
-        console.log(error);
-        next(error);
-    }
-})
-
-module.exports = route ;
+module.exports = router ;
 
