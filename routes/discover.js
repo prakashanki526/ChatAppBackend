@@ -2,7 +2,7 @@ const { Router } = require("express");
 const router = Router();
 const User = require('../models/User.js');
 const jwt = require("jsonwebtoken");
-const Auth = require("../middleware/auth.js");
+const {Auth, localVariables} = require("../middleware/auth.js");
 const {register, login, getUser, updateUser, generateOTP, verifyOTP, createResetSession, resetPassword, verifyUser} = require('../controllers/appController.js');
 
 
@@ -14,13 +14,13 @@ router.route('/login').post(verifyUser,login);
 
 // get methods
 router.route('/user/:email').get(getUser);
-router.route('/generateOTP').get(generateOTP);
+router.route('/generateOTP').get(verifyUser,localVariables, generateOTP);
 router.route('/verifyOTP').get(verifyOTP);
 router.route('/createResetSession').get(createResetSession);
 
 // put methods
-router.route('/updateUser').put(updateUser);
-router.route('/resetPassword').put(resetPassword);
+router.route('/updateUser').put(Auth,updateUser);
+router.route('/resetPassword').put(verifyUser,resetPassword);
 
 
 module.exports = router ;
