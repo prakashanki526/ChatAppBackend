@@ -22,25 +22,25 @@ const registerMail = (req,res) => {
             }
      })
     
-    const {userEmail, OTP, subject} = req.body;
+    const {email, name} = req.body;
+    const OTP = req.app.locals.OTP;
 
-     var email = {
+     var mail = {
         body: {
+            name: name,
             intro: OTP || 'Welcome to my application.',
-            outro: 'Need help, or have question?'
+            outro: 'Enter this OTP to verify.'
         }
     }
 
-    var emailBody = MailGenerator.generate(email);
+    var emailBody = MailGenerator.generate(mail);
 
     let message = {
         from: process.env.EMAIL,
-        to: userEmail,
-        subject: subject || "OTP verification",
+        to: email,
+        subject: "OTP verification",
         html: emailBody
     }
-
-    console.log(message);
 
     transporter.sendMail(message)
         .then(()=>{

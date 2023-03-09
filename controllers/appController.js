@@ -24,9 +24,10 @@ async function login(req,res){
     try {
         const {email, password} = req.body;
 
-        const foundUser = await User.findOne({email});
+        const foundUser = await User.findOne({email: email});
         if(!foundUser){
-            res.status(500).send({error: "Username do not exist."});
+            // return res.status(500).send({error: "Username do not exist."});
+            return res.send({error: "User do not exist."});
         } else {
             if(foundUser.password === password){
                 const token = jwt.sign({
@@ -34,10 +35,13 @@ async function login(req,res){
                     username: foundUser.email
                 },'secret',{expiresIn: "24h"})
 
+                // return res.status(201).send({msg: "Logged In", username: foundUser.email, token})
                 return res.status(201).send({msg: "Logged In", username: foundUser.email, token})
             }
             else
-                return res.status(500).send({error: "Incorrect Password"});
+                // return res.status(500).send({error: "Incorrect Password"});
+                return res.send({error: "Incorrect Password"});
+
         }
     } catch (error) {
         console.log(error);
@@ -78,10 +82,11 @@ async function updateUser(req,res){
     }
 }
 
-async function generateOTP(req,res){
+async function generateOTP(req,res,next){
     try {
         req.app.locals.OTP = await otpGenerator.generate(6, {lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false})
-        res.status(201).send({code: req.app.locals.OTP});
+        // res.status(201).send({code: req.app.locals.OTP});
+        next();
     } catch (error) {
         return res.status(501).send(error);
     }
@@ -93,9 +98,9 @@ async function verifyOTP(req,res){
         if(parseInt(req.app.locals.OTP) === parseInt(code)){
             req.app.locals.OTP = null;
             req.app.locals.resetSession = true; //start session for reset password
-            return res.status(201).send({msg: "Verify successfully"});
+            return res.send({msg: "Verified successfully"});
         }
-        return res.status(400).send({error: "Invalid OTP."})
+        return res.send({error: "Invalid OTP."})
     } catch (error) {
         return res.status(501).send(error);
     }
@@ -144,4 +149,15 @@ async function verifyUser(req,res,next){
     }
 }
 
-module.exports = {register, login, getUser, updateUser, generateOTP, verifyOTP, createResetSession, resetPassword, verifyUser};
+async function checkUserExist(req,res){
+    try {
+        const {email} = req.params ;
+        const exist = await User.findOne({email: email});
+        if(!exist) return res.send({msg: "Can't find user."})
+        return res.send({error: 'User already exist.'});
+    } catch (error) {
+        return res.send(error);
+    }
+}
+
+module.exports = {register, login, getUser, updateUser, generateOTP, verifyOTP, createResetSession, resetPassword, verifyUser, checkUserExist};
