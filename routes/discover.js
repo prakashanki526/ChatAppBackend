@@ -10,7 +10,7 @@ const registerMail = require('../controllers/mailer.js');
 // post methods
 router.route('/register').post(register);
 router.route('/registerMail').post(registerMail);
-router.route('/authenticate').post((req,res)=>res.end());
+router.route('/authenticate').post(verifyUser,(req,res)=>res.end());
 router.route('/login').post(verifyUser,login);
 
 // get methods
