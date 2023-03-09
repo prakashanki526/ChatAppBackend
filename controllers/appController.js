@@ -44,7 +44,6 @@ async function login(req,res){
 
         }
     } catch (error) {
-        console.log(error);
         return res.status(500).send(error);
     }
 }
@@ -120,18 +119,39 @@ async function createResetSession(req,res){
 
 async function resetPassword(req,res){
     try {
-        if(!req.app.locals.resetSession) return res.status(440).send({error: "Session expired."});
+        if(!req.app.locals.resetSession) return res.send({error: "Session expired."});
         
         const {email, password} = req.body;
         let newPassword = password;
 
         const foundUser = await User.findOne({email: email});
-        if(!foundUser) return res.status(404).send({error: "User not found"});
+
+        if(!foundUser) return res.send({error: "User not found"});
         const updated = await User.updateOne({email: foundUser.email}, {password: newPassword});
         if(updated){
-            return res.status(201).send({msg: "Password reset successfull."});
+            return res.send({msg: "Password reset successfull."});
         }
-        return res.status(501).send({error: "Unsuccessfull."});
+        return res.send({error: "Unsuccessfull."});
+    } catch (error) {
+        return res.status(501).send(error);
+    }
+}
+
+async function recoverPassword(req,res){
+    try {
+        // if(!req.app.locals.resetSession) return res.send({error: "Session expired."});
+        
+        const {email, password} = req.body;
+        let newPassword = password;
+
+        const foundUser = await User.findOne({email: email});
+        console.log("user");
+        if(!foundUser) return res.send({error: "User not found"});
+        const updated = await User.updateOne({email: foundUser.email}, {password: newPassword});
+        if(updated){
+            return res.send({msg: "Password reset successfull."});
+        }
+        return res.send({error: "Unsuccessfull."});
     } catch (error) {
         return res.status(501).send(error);
     }
@@ -160,4 +180,4 @@ async function checkUserExist(req,res){
     }
 }
 
-module.exports = {register, login, getUser, updateUser, generateOTP, verifyOTP, createResetSession, resetPassword, verifyUser, checkUserExist};
+module.exports = {register, login, getUser, updateUser, recoverPassword, generateOTP, verifyOTP, createResetSession, resetPassword, verifyUser, checkUserExist};
