@@ -22,7 +22,8 @@ const registerMail = (req,res) => {
             }
      })
     
-    const {email, name} = req.body;
+    let {email, name} = req.body;
+    email = email.toLowerCase();
     const OTP = req.app.locals.OTP;
 
      var mail = {

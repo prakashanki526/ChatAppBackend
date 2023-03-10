@@ -5,7 +5,9 @@ const otpGenerator = require('otp-generator');
 
 async function register(req,res){
     try {
-        const {name, email, password} = req.body;
+        let {name, email, password} = req.body;
+
+        email = email.toLowerCase();
 
         const foundUser = await User.findOne({email: email});
         if(!foundUser){
@@ -22,7 +24,9 @@ async function register(req,res){
 
 async function login(req,res){
     try {
-        const {email, password} = req.body;
+        let {email, password} = req.body;
+
+        email = email.toLowerCase();
 
         const foundUser = await User.findOne({email: email});
         if(!foundUser){
@@ -50,10 +54,11 @@ async function login(req,res){
 
 async function getUser(req,res){
     try {
-        const {email} = req.params;
+        let {email} = req.params;
         
         if(!email) return res.status(501).send({error: 'Invalid username'});
-
+        email = email.toLowerCase();
+        
         const foundUser = await User.findOne({email: email});
 
         if(!foundUser) return res.status(501).send({error: 'User do not exist.'});
@@ -141,7 +146,8 @@ async function recoverPassword(req,res){
     try {
         // if(!req.app.locals.resetSession) return res.send({error: "Session expired."});
         
-        const {email, password} = req.body;
+        let {email, password} = req.body;
+        email = email.toLowerCase();
         let newPassword = password;
 
         const foundUser = await User.findOne({email: email});
@@ -159,7 +165,8 @@ async function recoverPassword(req,res){
 
 async function verifyUser(req,res,next){
     try {
-        const {email} = req.method == 'GET' ? req.query : req.body ;
+        let {email} = req.method == 'GET' ? req.query : req.body ;
+        email = email.toLowerCase();
 
         const exist = User.findOne({email});
         if(!exist) return res.status(501).send({error: "Can't find user."})
@@ -171,7 +178,8 @@ async function verifyUser(req,res,next){
 
 async function checkUserExist(req,res){
     try {
-        const {email} = req.params ;
+        let {email} = req.params ;
+        email = email.toLowerCase();
         const exist = await User.findOne({email: email});
         if(!exist) return res.send({msg: "Can't find user."})
         return res.send({error: 'User already exist.'});
