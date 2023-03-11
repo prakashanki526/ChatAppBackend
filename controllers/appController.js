@@ -188,4 +188,28 @@ async function checkUserExist(req,res){
     }
 }
 
-module.exports = {register, login, getUser, updateUser, recoverPassword, generateOTP, verifyOTP, createResetSession, resetPassword, verifyUser, checkUserExist};
+async function getUsersList(req,res){
+    try {
+        const usersList = await User.find({});
+        let {email} = req.query;
+        email = email.toLowerCase();
+
+        let dataToSend = [];
+        usersList.map((user) => {
+            if(user.email !== email){
+                dataToSend.push({
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email
+                })
+            }
+        });
+        return res.send(dataToSend);
+    } catch (error) {
+        return res.send(error);
+    }
+}
+
+
+
+module.exports = {register, login, getUser, updateUser, recoverPassword, generateOTP, verifyOTP, createResetSession, resetPassword, verifyUser, checkUserExist, getUsersList};
