@@ -211,7 +211,7 @@ async function getUsersList(req,res){
     }
 }
 
-async function createChat(req,res,next){
+async function createChat(req,res){
     try {
         let {sender, reciever} = req.body;
         sender = sender.toLowerCase();
@@ -222,16 +222,14 @@ async function createChat(req,res,next){
         const found = await Chat.findOne({id: id});
 
         if(found){
-            // return res.status(500).send({error: "Chat already exist."});
-            next();
+            return res.status(500).send({error: "Chat already exist."});
         }
 
         await Chat.create({
             id: id,
             messages: []
         })
-        // return res.status(201).send({msg: "Registered successfully"});
-        next();
+        return res.status(201).send({msg: "Registered successfully"});
 
     } catch (error) {
         return res.send(error);

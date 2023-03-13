@@ -23,7 +23,7 @@ router.route('/verifyOTP').get(verifyOTP);
 router.route('/createResetSession').get(createResetSession);
 router.route('/doesUserExist/:email').get(checkUserExist);
 router.route('/getUsersList').get(verifyUser,getUsersList);
-router.route('/getAllMessages').get(createChat,getAllMessages);
+router.route('/getAllMessages').get(getAllMessages);
 
 // put methods
 router.route('/updateUser').put(Auth,updateUser);
