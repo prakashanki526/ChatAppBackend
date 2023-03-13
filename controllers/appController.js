@@ -2,6 +2,7 @@ const User  = require('../models/User.js');
 const jwt = require('jsonwebtoken');
 const optGenerator = require('otp-generator');
 const otpGenerator = require('otp-generator');
+const Chat = require('../models/Chat');
 
 async function register(req,res){
     try {
@@ -210,6 +211,89 @@ async function getUsersList(req,res){
     }
 }
 
+async function createChat(req,res,next){
+    try {
+        let {sender, reciever} = req.body;
+        sender = sender.toLowerCase();
+        reciever = reciever.toLowerCase();
+
+        const id = sender+reciever;
+
+        const found = await Chat.findOne({id: id});
+
+        if(found){
+            // return res.status(500).send({error: "Chat already exist."});
+            next();
+        }
+
+        await Chat.create({
+            id: id,
+            messages: []
+        })
+        // return res.status(201).send({msg: "Registered successfully"});
+        next();
+
+    } catch (error) {
+        return res.send(error);
+    }
+}
+
+async function sendMessage(req,res){
+    try {
+        let {text, sender, reciever, time} = req.body;
+        sender = sender.toLowerCase();
+        reciever = reciever.toLowerCase();
+
+        const id = sender+reciever;
+
+        const found = await Chat.findOne({id: id});
+
+        if(found){
+            const newMessage = {
+                text: text,
+                sender: sender,
+                reciever: reciever,
+                time: time
+            }
+
+            const messages = found.messages;
+            await found.updateOne({messages: [newMessage, ...messages]});
+
+            return res.status(201).send({msg: "Message sent"});
+        }
+        return res.status(500).send({error: "Chat don't exist."});
+    } catch (error) {
+        return res.send(error);
+    }
+}
+
+async function getAllMessages(req,res){
+    try {
+        let {sender, reciever} = req.body;
+        sender = sender.toLowerCase();
+        reciever = reciever.toLowerCase();
+
+        const id = sender+reciever;
+
+        const found = await Chat.findOne({id: id});
+        if(found){
+            return res.status(201).send({messages: found.messages});
+        }
+        else{
+            return res.status(500).send({error: "User don't exist."});
+        }
+    } catch (error) {
+        return res.send(error);
+    }
+}
+
+// async function getUsersList(req,res){
+//     try {
+        
+//     } catch (error) {
+//         return res.send(error);
+//     }
+// }
 
 
-module.exports = {register, login, getUser, updateUser, recoverPassword, generateOTP, verifyOTP, createResetSession, resetPassword, verifyUser, checkUserExist, getUsersList};
+module.exports = {register, login, getUser, updateUser, createChat, recoverPassword, generateOTP, verifyOTP, createResetSession, resetPassword, verifyUser, checkUserExist, getUsersList, sendMessage, getAllMessages};
