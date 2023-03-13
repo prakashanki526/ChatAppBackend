@@ -222,7 +222,7 @@ async function createChat(req,res){
         const found = await Chat.findOne({id: id});
 
         if(found){
-            return res.status(500).send({error: "Chat already exist."});
+            return res.status(201).send({msg: "Chat already exist."});
         }
 
         await Chat.create({
