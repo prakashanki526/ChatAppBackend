@@ -217,19 +217,27 @@ async function createChat(req,res){
         sender = sender.toLowerCase();
         reciever = reciever.toLowerCase();
 
-        const id = sender+reciever;
+        const senderId = sender+reciever;
+        const recieverId = reciever+sender;
 
-        const found = await Chat.findOne({id: id});
+        const foundSender = await Chat.findOne({id: senderId});
+        const foundReciever = await Chat.findOne({id: recieverId});
 
-        if(found){
-            return res.status(201).send({msg: "Chat already exist."});
+        if(!foundSender){
+            await Chat.create({
+                id: senderId,
+                messages: []
+            })
         }
 
-        await Chat.create({
-            id: id,
-            messages: []
-        })
-        return res.status(201).send({msg: "Registered successfully"});
+        if(!foundReciever){
+            await Chat.create({
+                id: recieverId,
+                messages: []
+            })
+        }
+
+        return res.status(201).send({msg: "success"});
 
     } catch (error) {
         return res.send(error);
@@ -242,11 +250,11 @@ async function sendMessage(req,res){
         sender = sender.toLowerCase();
         reciever = reciever.toLowerCase();
 
-        const id = sender+reciever;
+        const senderId = sender+reciever;
+        const recieverId = reciever+sender;
 
-        const found = await Chat.findOne({id: id});
-
-        if(found){
+        const foundSender = await Chat.findOne({id: senderId});
+        if(foundSender){
             const newMessage = {
                 text: text,
                 sender: sender,
@@ -254,11 +262,24 @@ async function sendMessage(req,res){
                 time: time
             }
 
-            const messages = found.messages;
-            await found.updateOne({messages: [newMessage, ...messages]});
+            const messages = foundSender.messages;
+            await foundSender.updateOne({messages: [newMessage, ...messages]});
+        }
 
+        const foundReciever = await Chat.findOne({id: recieverId});
+        if(foundReciever){
+            const newMessage = {
+                text: text,
+                sender: sender,
+                reciever: reciever,
+                time: time
+            }
+
+            const messages = foundReciever.messages;
+            await foundReciever.updateOne({messages: [newMessage, ...messages]});
             return res.status(201).send({msg: "Message sent"});
         }
+
         return res.status(500).send({error: "Chat don't exist."});
     } catch (error) {
         return res.send(error);
@@ -267,7 +288,7 @@ async function sendMessage(req,res){
 
 async function getAllMessages(req,res){
     try {
-        let {sender, reciever} = req.body;
+        let {sender, reciever} = req.query;
         sender = sender.toLowerCase();
         reciever = reciever.toLowerCase();
 
